@@ -9,9 +9,13 @@ If you liked the project, please give a star ;)
 
 - Visual Studio 2022 or Visual Studio Code
 - .Net 7
+- Docker
 
 ## Architecture :heavy_check_mark:
 
 -  Minimal APIs
 - Separation of technology details from the rest of the system
 - Single responsibility of each layer
+- BFF strategy
+- gRPC Client & Server
+- Open Telemetry
