@@ -3,9 +3,23 @@
     "Docker Compose": {
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "otel.sample.bff",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
       "serviceActions": {
+        "otel.sample.webservice": "StartDebugging",
+        "otel.sample.grpc": "StartDebugging",
+        "otel.sample.bff": "StartDebugging",
         "otel.sample.workerservice": "StartDebugging",
-        "otel.sample.webservice": "StartDebugging"
+        "grafana": "StartWithoutDebugging",
+        "jaeger-all-in-one": "StartWithoutDebugging",
+        "loki": "StartWithoutDebugging",
+        "mongo": "StartWithoutDebugging",
+        "otel-collector": "StartWithoutDebugging",
+        "prometheus": "StartWithoutDebugging",
+        "promtail": "StartWithoutDebugging",
+        "rabbitmq": "StartWithoutDebugging",
+        "redis": "StartWithoutDebugging"
       }
     }
   }

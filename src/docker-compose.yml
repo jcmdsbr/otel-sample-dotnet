@@ -1,24 +1,62 @@
-version: '3.4'
+version: '3.7'
 
 services:
+
+  otel.sample.bff:
+    image: ${DOCKER_REGISTRY-}otelsamplebff
+    container_name: bff-service
+    build:
+      context: .
+      dockerfile: Otel.Sample.Bff/Dockerfile
+    environment:
+      - Services__Customer=https://otel.sample.webservice
+      - Services__Product=http://otel.sample.grpc
+      - Otlp__Endpoint=http://otel-collector:4317
+    depends_on:
+      - otel.sample.grpc
+      - otel.sample.workerservice
+      - otel.sample.webservice
+
+  otel.sample.grpc:
+    image: ${DOCKER_REGISTRY-}otelsamplegrpc
+    container_name: grpc-service
+    build:
+      context: .
+      dockerfile: Otel.Sample.gRPC/Dockerfile
+    environment:
+      - ConnectionStrings__Mongo=mongodb://mongo:27017 
+      - Otlp__Endpoint=http://otel-collector:4317
+    depends_on:
+      - mongo
+
   otel.sample.workerservice:
     image: ${DOCKER_REGISTRY-}otelsampleworkerservice
+    container_name: worker-service
     build:
       context: .
       dockerfile: Otel.Sample.WorkerService/Dockerfile
     environment:
+      - ConnectionStrings__Redis=redis:6379  
       - Rabbit__HostName=rabbitmq
       - Otlp__Endpoint=http://otel-collector:4317
+    depends_on:
+      - redis
+      - rabbitmq
 
   otel.sample.webservice:
     image: ${DOCKER_REGISTRY-}otelsamplewebservice
-
+    container_name: web-service
     build:
       context: .
       dockerfile: Otel.Sample.WebService/Dockerfile
     environment:
+      - ConnectionStrings__Redis=redis:6379  
       - Rabbit__HostName=rabbitmq
       - Otlp__Endpoint=http://otel-collector:4317
+    depends_on:
+      - redis
+      - rabbitmq
+
   loki:
     image: grafana/loki:latest
     restart: always
@@ -86,18 +124,33 @@ services:
       - jaeger-all-in-one
       - prometheus
       - loki 
+ 
   redis:
     container_name: redis  
     restart: always
     image: redis:latest
     ports:
       - "6379:6379"    
+  
   rabbitmq:
     container_name: rabbitmq
     restart: always
     image: rabbitmq:management-alpine
     ports:
       - "15672:15672"
-      - "5672:5672"    
+      - "5672:5672"
+
+  mongo:
+    container_name: mongo
+    restart: always
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
 volumes:
-  grafana_data:    
+  grafana_data:
+  mongo_data:
+
+

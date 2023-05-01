@@ -5,14 +5,14 @@ using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 using Otel.Sample.SharedKernel.Diagnostics.v1;
 using Otel.Sample.SharedKernel.Helpers.v1;
-using Otel.Sample.SharedKernel.Models.v1;
+using Otel.Sample.WebService.Models.v1;
 using RabbitMQ.Client;
 
 namespace Otel.Sample.WebService.Handlers.v1;
 
 public interface IMessageSenderHandler : IDisposable
 {
-    Task SendMessageAsync(CustomerMessage customer, CancellationToken cancellationToken);
+    Task SendMessageAsync(Customer customer, CancellationToken cancellationToken);
 }
 
 public sealed class MessageSenderHandler : IMessageSenderHandler
@@ -25,12 +25,12 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
 
     private bool _disposedValue;
 
-    public MessageSenderHandler(IInstrumentation instrumentation, IConfiguration configuration)
+    public MessageSenderHandler(IInstrumentation instrumentation, MessageBrokerHelper messageBrokerHelper)
     {
         _instrumentation = instrumentation;
 
-        _connection = RabbitMqHelper.CreateConnection(configuration);
-        _channel = RabbitMqHelper.CreateModelAndDeclareTestQueue(_connection);
+        _connection = messageBrokerHelper.CreateConnection();
+        _channel = messageBrokerHelper.CreateModelAndDeclareTestQueue(_connection);
     }
 
     public void Dispose()
@@ -39,13 +39,12 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
         GC.SuppressFinalize(this);
     }
 
-    public Task SendMessageAsync(CustomerMessage customer, CancellationToken cancellationToken)
+    public Task SendMessageAsync(Customer customer, CancellationToken cancellationToken)
     {
         return Task.Run(() =>
         {
             // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
-            // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-            var activityName = $"{RabbitMqHelper.QueueName} send";
+            var activityName = $"{MessageBrokerHelper.QueueName} send";
 
             using var activity = _instrumentation.ActivitySource.StartActivity(activityName, ActivityKind.Producer);
             var props = _channel.CreateBasicProperties();
@@ -54,19 +53,15 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
             Propagator.Inject(new PropagationContext(Activity.Current!.Context, Baggage.Current), props,
                 InjectTraceContextIntoBasicProperties);
 
-            // These tags are added demonstrating the semantic conventions of the OpenTelemetry messaging specification
-            // See:
-            //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#messaging-attributes
-            //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#rabbitmq
-
+            // The semantic conventions of the OpenTelemetry messaging specification
             activity?.SetTag("messaging.system", "rabbitmq");
             activity?.SetTag("messaging.destination_kind", "queue");
-            activity?.SetTag("messaging.destination", RabbitMqHelper.DefaultExchangeName);
-            activity?.SetTag("messaging.rabbitmq.routing_key", RabbitMqHelper.QueueName);
+            activity?.SetTag("messaging.destination", MessageBrokerHelper.DefaultExchangeName);
+            activity?.SetTag("messaging.rabbitmq.routing_key", MessageBrokerHelper.QueueName);
 
             _channel.BasicPublish(
-                RabbitMqHelper.DefaultExchangeName,
-                RabbitMqHelper.QueueName,
+                MessageBrokerHelper.DefaultExchangeName,
+                MessageBrokerHelper.QueueName,
                 props,
                 Encoding.UTF8.GetBytes(JsonSerializer.Serialize(customer)));
         }, cancellationToken);

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "Otel.Sample.gRPC";
+
+package product;
+
+service Product {
+	rpc Find(GetProductRequest) returns (ProoductsResponse);
+	rpc Create(CreateProductRequest) returns (CreateProductResponse);
+}
+
+message GetProductRequest {
+
+}
+
+message CreateProductRequest {
+	string Name = 1;
+}
+
+message CreateProductResponse {
+	string Id = 1;
+	string Name = 2;
+}
+
+message ProoductsResponse {
+	repeated ProductItem Items = 1;
+}
+
+message ProductItem {
+	string Id = 1;
+	string Name = 2;
+}

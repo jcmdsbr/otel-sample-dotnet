@@ -2,13 +2,13 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Otel.Sample.SharedKernel.Diagnostics.v1;
-using Otel.Sample.SharedKernel.Models.v1;
+using Otel.Sample.WebService.Models.v1;
 
 namespace Otel.Sample.WebService.Repositories.v1;
 
 public interface ICustomerRepository
 {
-    Task<Guid> AddAsync(CustomerRequest customer, CancellationToken cancellationToken);
+    Task AddAsync(Customer customer, CancellationToken cancellationToken);
 }
 
 public class CustomerRepository : ICustomerRepository
@@ -27,15 +27,14 @@ public class CustomerRepository : ICustomerRepository
         _instrumentation = instrumentation;
     }
 
-    public async Task<Guid> AddAsync(CustomerRequest customer, CancellationToken cancellationToken)
+    public async Task AddAsync(Customer customer, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Create a customer key");
-
-        var key = Guid.NewGuid();
-
-        using var activityCache = _instrumentation.ActivitySource.StartActivity("Call redis", ActivityKind.Client);
-        await _distributedCache.SetStringAsync(key.ToString(), JsonSerializer.Serialize(customer), cancellationToken);
-
-        return key;
+        var (id, name, lastname, birthday) = customer;
+        _logger.LogInformation("Customer to save: {customerId}, {customerName}, {customerLastName}, {birthday}", id,
+            name, lastname, birthday);
+        using var activityCache =
+            _instrumentation.ActivitySource.StartActivity("Saving customer in cache", ActivityKind.Client);
+        await _distributedCache.SetStringAsync(customer.Id.ToString(), JsonSerializer.Serialize(customer),
+            cancellationToken);
     }
 }

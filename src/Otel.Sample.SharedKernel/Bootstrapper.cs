@@ -48,6 +48,7 @@ public static class Bootstrapper
                 .SetResourceBuilder(resourceBuilder)
                 .SetSampler(new AlwaysOnSampler())
                 .AddHttpClientInstrumentation()
+                .AddGrpcClientInstrumentation()
                 .AddAspNetCoreInstrumentation();
 
             services.Configure<AspNetCoreInstrumentationOptions>(configuration.GetSection("AspNetCoreInstrumentation"));

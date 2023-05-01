@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otel.Sample.gRPC", "Otel.Sample.gRPC\Otel.Sample.gRPC.csproj", "{E471DB32-A762-4D37-8F0B-36F640D81E4C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otel.Sample.Bff", "Otel.Sample.Bff\Otel.Sample.Bff.csproj", "{E61CA666-82F8-4BC2-8815-28AD074D7D3F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +44,14 @@ Global
 		{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E471DB32-A762-4D37-8F0B-36F640D81E4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E471DB32-A762-4D37-8F0B-36F640D81E4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E471DB32-A762-4D37-8F0B-36F640D81E4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E471DB32-A762-4D37-8F0B-36F640D81E4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E61CA666-82F8-4BC2-8815-28AD074D7D3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E61CA666-82F8-4BC2-8815-28AD074D7D3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E61CA666-82F8-4BC2-8815-28AD074D7D3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E61CA666-82F8-4BC2-8815-28AD074D7D3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

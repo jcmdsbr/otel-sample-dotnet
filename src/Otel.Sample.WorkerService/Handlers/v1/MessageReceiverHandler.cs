@@ -22,19 +22,21 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
     private readonly IConnection _connection;
     private readonly IInstrumentation _instrumentation;
     private readonly ILogger<MessageReceiverHandler> _logger;
+    private readonly MessageBrokerHelper _messageBrokerHelper;
 
     private bool _disposedValue;
 
     public MessageReceiverHandler(
         ILogger<MessageReceiverHandler> logger,
-        IConfiguration configuration,
+        MessageBrokerHelper messageBrokerHelper,
         IInstrumentation instrumentation)
     {
         _logger = logger;
+        _messageBrokerHelper = messageBrokerHelper;
         _instrumentation = instrumentation;
 
-        _connection = RabbitMqHelper.CreateConnection(configuration);
-        _channel = RabbitMqHelper.CreateModelAndDeclareTestQueue(_connection);
+        _connection = messageBrokerHelper.CreateConnection();
+        _channel = messageBrokerHelper.CreateModelAndDeclareTestQueue(_connection);
     }
 
     public void Dispose()
@@ -45,7 +47,7 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
 
     public void StartConsumer()
     {
-        RabbitMqHelper.StartConsumer(_channel, ReceiveMessage);
+        _messageBrokerHelper.StartConsumer(_channel, ReceiveMessage);
     }
 
     private void Dispose(bool disposing)
@@ -68,7 +70,6 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
         Baggage.Current = parentContext.Baggage;
 
         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
-        // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
         var activityName = $"{ea.RoutingKey} receive";
 
         using var activity =
@@ -83,15 +84,11 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
             activity?.SetTag("message", message);
 
 
-            // These tags are added demonstrating the semantic conventions of the OpenTelemetry messaging specification
-            // See:
-            //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#messaging-attributes
-            //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#rabbitmq
-
+            // The semantic conventions of the OpenTelemetry messaging specification
             activity?.SetTag("messaging.system", "rabbitmq");
             activity?.SetTag("messaging.destination_kind", "queue");
-            activity?.SetTag("messaging.destination", RabbitMqHelper.DefaultExchangeName);
-            activity?.SetTag("messaging.rabbitmq.routing_key", RabbitMqHelper.QueueName);
+            activity?.SetTag("messaging.destination", MessageBrokerHelper.DefaultExchangeName);
+            activity?.SetTag("messaging.rabbitmq.routing_key", MessageBrokerHelper.QueueName);
 
             // Simulate some work
             Thread.Sleep(1000);
