@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otel.Sample.SharedKernel", "Otel.Sample.SharedKernel\Otel.Sample.SharedKernel.csproj", "{6298DB08-3708-46B9-8871-AB34E35C9595}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otel.Sample.WebService", "Otel.Sample.WebService\Otel.Sample.WebService.csproj", "{903C323A-8547-4ADC-8741-E60C322BB1B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Otel.Sample.WorkerService", "Otel.Sample.WorkerService\Otel.Sample.WorkerService.csproj", "{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7BB30787-8206-4DA2-BDCE-5C3661257C55}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yaml = docker-compose.yaml
+		grafana-datasource.yaml = grafana-datasource.yaml
+		otel-collector-config.yaml = otel-collector-config.yaml
+		prometheus.yaml = prometheus.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6298DB08-3708-46B9-8871-AB34E35C9595}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6298DB08-3708-46B9-8871-AB34E35C9595}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6298DB08-3708-46B9-8871-AB34E35C9595}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6298DB08-3708-46B9-8871-AB34E35C9595}.Release|Any CPU.Build.0 = Release|Any CPU
+		{903C323A-8547-4ADC-8741-E60C322BB1B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{903C323A-8547-4ADC-8741-E60C322BB1B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{903C323A-8547-4ADC-8741-E60C322BB1B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{903C323A-8547-4ADC-8741-E60C322BB1B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3460A62-7AB5-433C-8109-3A08CDD47AF3}
+	EndGlobalSection
+EndGlobal
