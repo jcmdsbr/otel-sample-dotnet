@@ -4,9 +4,9 @@ namespace Otel.Sample.WorkerService;
 
 public class Worker : BackgroundService
 {
-    private readonly MessageReceiverHandler _messageReceiverHandler;
+    private readonly IMessageReceiverHandler _messageReceiverHandler;
 
-    public Worker(MessageReceiverHandler messageReceiverHandler)
+    public Worker(IMessageReceiverHandler messageReceiverHandler)
     {
         _messageReceiverHandler = messageReceiverHandler;
     }
@@ -16,12 +16,12 @@ public class Worker : BackgroundService
         await base.StopAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         stoppingToken.ThrowIfCancellationRequested();
 
         _messageReceiverHandler.StartConsumer();
 
-        await Task.CompletedTask.ConfigureAwait(false);
+        return Task.CompletedTask;
     }
 }

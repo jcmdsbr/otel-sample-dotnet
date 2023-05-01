@@ -2,45 +2,66 @@
 using System.Text;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
+using Otel.Sample.SharedKernel.Diagnostics.v1;
 using Otel.Sample.SharedKernel.Helpers.v1;
-using Otel.Sample.WorkerService.Diagnostics.v1;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Otel.Sample.WorkerService.Handlers.v1;
 
-public class MessageReceiverHandler : IDisposable
+public interface IMessageReceiverHandler : IDisposable
+{
+    void StartConsumer();
+}
+
+public sealed class MessageReceiverHandler : IMessageReceiverHandler
 {
     private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
+
     private readonly IModel _channel;
     private readonly IConnection _connection;
-    private readonly RabbitMqHelper _helper;
-    private readonly Instrumentation _instrumentation;
-
+    private readonly IInstrumentation _instrumentation;
     private readonly ILogger<MessageReceiverHandler> _logger;
 
-    public MessageReceiverHandler(ILogger<MessageReceiverHandler> logger, IConfiguration configuration,
-        Instrumentation instrumentation)
+    private bool _disposedValue;
+
+    public MessageReceiverHandler(
+        ILogger<MessageReceiverHandler> logger,
+        IConfiguration configuration,
+        IInstrumentation instrumentation)
     {
         _logger = logger;
         _instrumentation = instrumentation;
-        _helper = new RabbitMqHelper(configuration);
-        _connection = _helper.CreateConnection();
-        _channel = _helper.CreateModelAndDeclareTestQueue(_connection);
+
+        _connection = RabbitMqHelper.CreateConnection(configuration);
+        _channel = RabbitMqHelper.CreateModelAndDeclareTestQueue(_connection);
     }
 
     public void Dispose()
     {
-        _channel.Dispose();
-        _connection.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     public void StartConsumer()
     {
-        _helper.StartConsumer(_channel, ReceiveMessage);
+        RabbitMqHelper.StartConsumer(_channel, ReceiveMessage);
     }
 
-    public void ReceiveMessage(BasicDeliverEventArgs ea)
+    private void Dispose(bool disposing)
+    {
+        if (_disposedValue) return;
+
+        if (disposing)
+        {
+            _channel.Dispose();
+            _connection.Dispose();
+        }
+
+        _disposedValue = true;
+    }
+
+    private void ReceiveMessage(BasicDeliverEventArgs ea)
     {
         // Extract the PropagationContext of the upstream parent from the message headers.
         var parentContext = Propagator.Extract(default, ea.BasicProperties, ExtractTraceContextFromBasicProperties);
@@ -69,8 +90,8 @@ public class MessageReceiverHandler : IDisposable
 
             activity?.SetTag("messaging.system", "rabbitmq");
             activity?.SetTag("messaging.destination_kind", "queue");
-            activity?.SetTag("messaging.destination", _helper.DefaultExchangeName);
-            activity?.SetTag("messaging.rabbitmq.routing_key", _helper.QueueName);
+            activity?.SetTag("messaging.destination", RabbitMqHelper.DefaultExchangeName);
+            activity?.SetTag("messaging.rabbitmq.routing_key", RabbitMqHelper.QueueName);
 
             // Simulate some work
             Thread.Sleep(1000);
@@ -97,5 +118,10 @@ public class MessageReceiverHandler : IDisposable
         }
 
         return Enumerable.Empty<string>();
+    }
+
+    ~MessageReceiverHandler()
+    {
+        Dispose(false);
     }
 }

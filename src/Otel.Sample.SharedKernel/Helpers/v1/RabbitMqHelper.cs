@@ -4,13 +4,16 @@ using RabbitMQ.Client.Events;
 
 namespace Otel.Sample.SharedKernel.Helpers.v1;
 
-public class RabbitMqHelper
+public static class RabbitMqHelper
 {
-    private readonly ConnectionFactory _connectionFactory;
+    private static ConnectionFactory? _connectionFactory;
 
-    public RabbitMqHelper(IConfiguration configuration)
+    public static string DefaultExchangeName => "";
+    public static string QueueName => "customer-created-queue";
+
+    public static IConnection CreateConnection(IConfiguration configuration)
     {
-        _connectionFactory = new ConnectionFactory
+        _connectionFactory ??= new ConnectionFactory
         {
             HostName = configuration.GetValue<string>("Rabbit:HostName"),
             UserName = configuration.GetValue<string>("Rabbit:UserName"),
@@ -18,35 +21,24 @@ public class RabbitMqHelper
             Port = 5672,
             RequestedConnectionTimeout = TimeSpan.FromMilliseconds(3000)
         };
-    }
 
-    public string DefaultExchangeName { get; set; } = "";
-    public string QueueName { get; set; } = "customer-created-queue";
-
-    public IConnection CreateConnection()
-    {
         return _connectionFactory.CreateConnection();
     }
 
-    public IModel CreateModelAndDeclareTestQueue(IConnection connection)
+    public static IModel CreateModelAndDeclareTestQueue(IConnection connection)
     {
         var channel = connection.CreateModel();
 
-        channel.QueueDeclare(
-            QueueName,
-            false,
-            false,
-            false,
-            null);
+        channel.QueueDeclare(QueueName, false, false, false, null);
 
         return channel;
     }
 
-    public void StartConsumer(IModel channel, Action<BasicDeliverEventArgs> processMessage)
+    public static void StartConsumer(IModel channel, Action<BasicDeliverEventArgs> processMessage)
     {
         var consumer = new EventingBasicConsumer(channel);
 
-        consumer.Received += (bc, ea) => processMessage(ea);
+        consumer.Received += (_, ea) => processMessage(ea);
 
         channel.BasicConsume(QueueName, true, consumer);
     }

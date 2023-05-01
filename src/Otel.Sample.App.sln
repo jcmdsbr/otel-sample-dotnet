@@ -7,15 +7,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otel.Sample.SharedKernel", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otel.Sample.WebService", "Otel.Sample.WebService\Otel.Sample.WebService.csproj", "{903C323A-8547-4ADC-8741-E60C322BB1B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Otel.Sample.WorkerService", "Otel.Sample.WorkerService\Otel.Sample.WorkerService.csproj", "{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otel.Sample.WorkerService", "Otel.Sample.WorkerService\Otel.Sample.WorkerService.csproj", "{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7BB30787-8206-4DA2-BDCE-5C3661257C55}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yaml = docker-compose.yaml
 		grafana-datasource.yaml = grafana-datasource.yaml
 		otel-collector-config.yaml = otel-collector-config.yaml
 		prometheus.yaml = prometheus.yaml
 	EndProjectSection
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +36,10 @@ Global
 		{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CAAAE8F-D5F2-4227-907F-6C9CCB30AE86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E78A390-4820-4ADF-A4F4-9FD0A00CBBA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

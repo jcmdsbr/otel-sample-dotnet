@@ -1,6 +1,24 @@
-version: '3.7'
-services:
+version: '3.4'
 
+services:
+  otel.sample.workerservice:
+    image: ${DOCKER_REGISTRY-}otelsampleworkerservice
+    build:
+      context: .
+      dockerfile: Otel.Sample.WorkerService/Dockerfile
+    environment:
+      - Rabbit__HostName=rabbitmq
+      - Otlp__Endpoint=http://otel-collector:4317
+
+  otel.sample.webservice:
+    image: ${DOCKER_REGISTRY-}otelsamplewebservice
+
+    build:
+      context: .
+      dockerfile: Otel.Sample.WebService/Dockerfile
+    environment:
+      - Rabbit__HostName=rabbitmq
+      - Otlp__Endpoint=http://otel-collector:4317
   loki:
     image: grafana/loki:latest
     restart: always
@@ -68,21 +86,18 @@ services:
       - jaeger-all-in-one
       - prometheus
       - loki 
-  #redis:
-  #  container_name: redis  
-  #  restart: always
-  #  image: redis:6.2
-  #  ports:
-  #    - "6379:6379"    
-  #rabbitmq:
-  #  container_name: rabbitmq
-  #  restart: always
-  #  image: rabbitmq:3.9.13-management
-  #  ports:
-  #    - "15672:15672"
-  #    - "5672:5672"    
+  redis:
+    container_name: redis  
+    restart: always
+    image: redis:latest
+    ports:
+      - "6379:6379"    
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    image: rabbitmq:management-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"    
 volumes:
   grafana_data:    
-  mongodb_data:   
-
-                 

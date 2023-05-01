@@ -18,6 +18,7 @@
 *.userprefs
 
 config/
+obj/
 # Mono auto generated files
 mono_crash.*
 
