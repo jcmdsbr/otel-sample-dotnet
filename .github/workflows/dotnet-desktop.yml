@@ -30,7 +30,7 @@ jobs:
           cd src
           dotnet tool restore && dotnet restore
           dotnet sonarscanner begin  \
-          /k:jcmdsbr_otel-sample-dotnet"  \
+          /k:"jcmdsbr_otel-sample-dotnet"  \
           /o:"jcmdsbr" \ 
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
