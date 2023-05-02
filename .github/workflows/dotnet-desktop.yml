@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           cd src
-          dotnet tool restore && dotnet restore .\Otel.Sample.App.sln
+          dotnet tool restore && dotnet restore ./Otel.Sample.App.sln
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -36,5 +36,5 @@ jobs:
         run: |
           cd src
           dotnet sonarscanner begin  /k:"jcmdsbr_otel-sample-dotnet"  /o:"jcmdsbr"  /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" && \
-          dotnet build .\Otel.Sample.App.sln && \
+          dotnet build ./Otel.Sample.App.sln && \
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
