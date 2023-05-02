@@ -28,7 +28,8 @@ jobs:
         shell: powershell
         run: |
           cd src
-          dotnet tool restore && dotnet restore
+          dotnet tool restore \
+          dotnet restore \
           dotnet sonarscanner begin  \
           /k:"jcmdsbr_otel-sample-dotnet"  \
           /o:"jcmdsbr" \ 

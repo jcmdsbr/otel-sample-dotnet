@@ -14,7 +14,7 @@ If you liked the project, please give a star ;)
 
 ## Architecture :heavy_check_mark:
 
-*  Minimal APIs
+* Minimal APIs
 * Separation of technology details from the rest of the system
 * Single responsibility of each layer
 * BFF strategy
