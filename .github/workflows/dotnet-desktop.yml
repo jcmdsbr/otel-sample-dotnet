@@ -25,11 +25,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
+        shell: sh
         run: |
           cd src
           dotnet tool restore \
-          dotnet restore \
+          dotnet restore .\Otel.Sample.App.sln \
           dotnet sonarscanner begin  \
           /k:"jcmdsbr_otel-sample-dotnet"  \
           /o:"jcmdsbr" \ 

@@ -24,3 +24,13 @@ If you liked the project, please give a star ;)
 ## Map
 
 ![Alternate text](./docs/topologia.drawio.png)
+
+## Description
+
+All application exports logs, traces and metrics in otlp format to a otel-collector using a grpc protocol.
+
+This collector use a open-telemetry pipeline and exports:
+
+* traces -> jaeger
+* logs -> loki
+* metrics -> prometheus
