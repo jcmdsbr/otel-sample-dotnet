@@ -23,18 +23,18 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'          
+      - name: Restore
+        shell: bash
+        run: |
+          cd src
+          dotnet tool restore && dotnet restore .\Otel.Sample.App.sln
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: bash
         run: |
           cd src
-          dotnet tool restore && dotnet restore .\Otel.Sample.App.sln \
-          dotnet sonarscanner begin  \
-          /k:"jcmdsbr_otel-sample-dotnet"  \
-          /o:"jcmdsbr" \ 
-          /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-          dotnet build .\Otel.Sample.App.sln \
+          dotnet sonarscanner begin  /k:"jcmdsbr_otel-sample-dotnet"  /o:"jcmdsbr"  /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" && \
+          dotnet build .\Otel.Sample.App.sln && \
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
