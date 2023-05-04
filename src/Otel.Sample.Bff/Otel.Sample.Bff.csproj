@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Otel.Sample.gRPC\Otel.Sample.gRPC.csproj" />
     <ProjectReference Include="..\Otel.Sample.SharedKernel\Otel.Sample.SharedKernel.csproj" />
   </ItemGroup>
 
