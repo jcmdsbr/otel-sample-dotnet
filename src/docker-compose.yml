@@ -11,7 +11,7 @@ services:
     environment:
       - Services__Customer=https://otel.sample.webservice
       - Services__Product=http://otel.sample.grpc
-      - Otlp__Endpoint=http://otel-collector:4317
+      - OTelCol__Endpoint=http://otel-collector:4317
     depends_on:
       - otel.sample.grpc
       - otel.sample.workerservice
@@ -25,7 +25,7 @@ services:
       dockerfile: Otel.Sample.gRPC/Dockerfile
     environment:
       - ConnectionStrings__Mongo=mongodb://mongo:27017 
-      - Otlp__Endpoint=http://otel-collector:4317
+      - OTelCol__Endpoint=http://otel-collector:4317
     depends_on:
       - mongo
 
@@ -36,9 +36,10 @@ services:
       context: .
       dockerfile: Otel.Sample.WorkerService/Dockerfile
     environment:
+      - Services__Customer=https://otel.sample.webservice
       - ConnectionStrings__Redis=redis:6379  
       - Rabbit__HostName=rabbitmq
-      - Otlp__Endpoint=http://otel-collector:4317
+      - OTelCol__Endpoint=http://otel-collector:4317
     depends_on:
       - redis
       - rabbitmq
@@ -52,7 +53,7 @@ services:
     environment:
       - ConnectionStrings__Redis=redis:6379  
       - Rabbit__HostName=rabbitmq
-      - Otlp__Endpoint=http://otel-collector:4317
+      - OTelCol__Endpoint=http://otel-collector:4317
     depends_on:
       - redis
       - rabbitmq

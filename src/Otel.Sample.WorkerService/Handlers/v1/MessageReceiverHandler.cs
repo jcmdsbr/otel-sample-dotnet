@@ -69,7 +69,7 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
         var parentContext = Propagator.Extract(default, ea.BasicProperties, ExtractTraceContextFromBasicProperties);
         Baggage.Current = parentContext.Baggage;
 
-        // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
+        // StartAsync an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
         var activityName = $"{ea.RoutingKey} receive";
 
         using var activity =

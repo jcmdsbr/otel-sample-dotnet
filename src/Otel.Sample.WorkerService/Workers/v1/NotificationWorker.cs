@@ -1,12 +1,12 @@
 using Otel.Sample.WorkerService.Handlers.v1;
 
-namespace Otel.Sample.WorkerService;
+namespace Otel.Sample.WorkerService.Workers.v1;
 
-public class Worker : BackgroundService
+public class NotificationWorker : BackgroundService
 {
     private readonly IMessageReceiverHandler _messageReceiverHandler;
 
-    public Worker(IMessageReceiverHandler messageReceiverHandler)
+    public NotificationWorker(IMessageReceiverHandler messageReceiverHandler)
     {
         _messageReceiverHandler = messageReceiverHandler;
     }

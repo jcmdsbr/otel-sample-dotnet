@@ -2,20 +2,22 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Instrumentation.GrpcNetClient;
 using OpenTelemetry.Instrumentation.Http;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Otel.Sample.SharedKernel.Diagnostics.v1;
 
 namespace Otel.Sample.SharedKernel;
 
 public static class Bootstrapper
 {
-    public static ILoggingBuilder AddOtelLogger(this ILoggingBuilder builder, IConfiguration configuration,
+    public static ILoggingBuilder AddOTelLogger(this ILoggingBuilder builder, IConfiguration configuration,
         ResourceBuilder resourceBuilder)
     {
-        var endpoint = configuration.GetValue<string>("Otlp:Endpoint");
+        var endpoint = configuration.GetValue<string>("OTelCol:Endpoint");
 
         ArgumentException.ThrowIfNullOrEmpty(endpoint);
 
@@ -31,13 +33,13 @@ public static class Bootstrapper
         return builder;
     }
 
-    public static IServiceCollection AddOtel(
+    public static IServiceCollection AddOTel(
         this IServiceCollection services,
         IConfiguration configuration,
         ResourceBuilder resourceBuilder,
         string applicationName)
     {
-        var endpoint = configuration.GetValue<string>("Otlp:Endpoint");
+        var endpoint = configuration.GetValue<string>("OTelCol:Endpoint");
 
         ArgumentException.ThrowIfNullOrEmpty(endpoint);
 
@@ -53,8 +55,9 @@ public static class Bootstrapper
 
             services.Configure<AspNetCoreInstrumentationOptions>(configuration.GetSection("AspNetCoreInstrumentation"));
             services.Configure<HttpClientInstrumentationOptions>(configuration.GetSection("HttpClientInstrumentation"));
+            services.Configure<GrpcClientInstrumentationOptions>(configuration.GetSection("GrpcClientInstrumentation"));
 
-            options.AddOtlpExporter(otlpOptions => { otlpOptions.Endpoint = new Uri(endpoint); });
+            options.AddOtlpExporter(exporterOptions => { exporterOptions.Endpoint = new Uri(endpoint); });
             options.AddConsoleExporter();
         }).WithMetrics(options =>
         {
@@ -65,13 +68,16 @@ public static class Bootstrapper
                 .AddHttpClientInstrumentation()
                 .AddAspNetCoreInstrumentation();
 
-            options.AddOtlpExporter(otlpOptions => { otlpOptions.Endpoint = new Uri(endpoint); });
+            options.AddOtlpExporter(exporterOptions => { exporterOptions.Endpoint = new Uri(endpoint); });
         });
+
+        services.AddTransient<IInstrumentation>(_ => new Instrumentation(applicationName));
 
         return services;
     }
 
-    public static IServiceCollection AddCache(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDistributedCacheWithRedis(this IServiceCollection services,
+        IConfiguration configuration)
     {
         return services.AddStackExchangeRedisCache(options =>
         {

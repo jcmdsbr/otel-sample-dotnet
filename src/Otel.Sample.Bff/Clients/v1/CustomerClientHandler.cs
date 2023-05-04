@@ -32,17 +32,32 @@ public sealed class CustomerClientHandler : IDisposable
         using var activityMain =
             _instrumentation.ActivitySource.StartActivity("Call customer service", ActivityKind.Client);
 
-        var httpResponse = await _httpClient.PostAsJsonAsync("/v1/customers", request, cancellation);
+        var customerSuccessHistogram =
+            _instrumentation.MeterSource.CreateHistogram<long>("customer-success-process-ms");
+        var customerFailHistogram = _instrumentation.MeterSource.CreateHistogram<long>("customer-fail-process-ms");
 
         var traceId = activityMain?.TraceId.ToString();
+        var ms = new Stopwatch();
+
+        ms.Start();
+        var httpResponse = await _httpClient.PostAsJsonAsync("/v1/customers", request, cancellation);
+        Thread.Sleep(new Random().Next(100, 200));
+        ms.Stop();
+
 
         if (httpResponse.IsSuccessStatusCode)
+        {
+            customerSuccessHistogram.Record(ms.ElapsedMilliseconds);
             return ((int)httpResponse.StatusCode,
                 new Response(new { TraceId = traceId }, new[] { "Success !! customer created." }));
+        }
 
 
         var error = await httpResponse.Content.ReadAsStringAsync(cancellation);
+
         _logger.LogError("Error when call customer service: {response}", error);
+
+        customerFailHistogram.Record(ms.ElapsedMilliseconds);
 
         return ((int)httpResponse.StatusCode,
             new Response(new { TraceId = traceId }, new[] { "Failed!! to create a customer." }));
