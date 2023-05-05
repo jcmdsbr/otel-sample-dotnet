@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Grpc.Core;
+using Otel.Sample.gRPC.Models.v1;
 using Otel.Sample.gRPC.Repositories.v1;
 using Otel.Sample.SharedKernel.Diagnostics.v1;
 
@@ -22,11 +23,11 @@ public class ProductService : Product.ProductBase
     public override async Task<CreateProductResponse> Create(CreateProductRequest request, ServerCallContext context)
     {
         using var activityMain =
-            _instrumentation.ActivitySource.StartActivity("Starting create product process", ActivityKind.Server);
+            _instrumentation.ActivitySource.StartActivity("Starting create productEntity process", ActivityKind.Server);
 
-        var product = new Models.v1.Product(Guid.NewGuid(), request.Name);
+        var product = new ProductEntity(Guid.NewGuid(), request.Name);
 
-        _logger.LogInformation("New product created: {productId}, {productName}", product.Id, product.Name);
+        _logger.LogInformation("New productEntity created: {productId}, {productName}", product.Id, product.Name);
 
         await _repository.AddAsync(product, context.CancellationToken);
 

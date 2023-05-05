@@ -1,10 +1,11 @@
-version: '3.7'
+version: '3.9'
 
 services:
 
   otel.sample.bff:
     image: ${DOCKER_REGISTRY-}otelsamplebff
     container_name: bff-service
+    restart: on-failure
     build:
       context: .
       dockerfile: Otel.Sample.Bff/Dockerfile
@@ -20,6 +21,7 @@ services:
   otel.sample.grpc:
     image: ${DOCKER_REGISTRY-}otelsamplegrpc
     container_name: grpc-service
+    restart: on-failure
     build:
       context: .
       dockerfile: Otel.Sample.gRPC/Dockerfile
@@ -32,6 +34,7 @@ services:
   otel.sample.workerservice:
     image: ${DOCKER_REGISTRY-}otelsampleworkerservice
     container_name: worker-service
+    restart: on-failure
     build:
       context: .
       dockerfile: Otel.Sample.WorkerService/Dockerfile
@@ -47,6 +50,7 @@ services:
   otel.sample.webservice:
     image: ${DOCKER_REGISTRY-}otelsamplewebservice
     container_name: web-service
+    restart: on-failure
     build:
       context: .
       dockerfile: Otel.Sample.WebService/Dockerfile

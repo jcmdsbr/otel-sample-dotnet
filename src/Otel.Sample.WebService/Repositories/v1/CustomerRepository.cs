@@ -2,7 +2,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Otel.Sample.SharedKernel.Diagnostics.v1;
-using Otel.Sample.SharedKernel.Helpers.v1;
 using Otel.Sample.WebService.Models.v1;
 
 namespace Otel.Sample.WebService.Repositories.v1;
@@ -32,12 +31,13 @@ public class CustomerRepository : ICustomerRepository
     {
         var (id, name, lastname, birthday) = customer;
 
-        _logger.LogInformation("Customer to save: {customerId}, {customerName}, {customerLastName}, {birthday}", id,name, lastname, birthday);
-        
+        _logger.LogInformation("Customer to save: {customerId}, {customerName}, {customerLastName}, {birthday}", id,
+            name, lastname, birthday);
+
         const string activityName = "HSET customer";
 
         using var activityCache = _instrumentation.ActivitySource.StartActivity(activityName, ActivityKind.Client);
-        
+
         var key = customer.Id.ToString();
         var data = JsonSerializer.Serialize(customer);
 

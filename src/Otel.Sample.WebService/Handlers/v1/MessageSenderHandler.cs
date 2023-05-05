@@ -19,8 +19,6 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
 {
     private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
-    private readonly IModel _channel;
-    private readonly IConnection _connection;
     private readonly IInstrumentation _instrumentation;
 
     private bool _disposedValue;
@@ -28,10 +26,14 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
     public MessageSenderHandler(IInstrumentation instrumentation, MessageBrokerHelper messageBrokerHelper)
     {
         _instrumentation = instrumentation;
+        var messageBrokerHelper1 = messageBrokerHelper;
 
-        _connection = messageBrokerHelper.CreateConnection();
-        _channel = messageBrokerHelper.CreateModelAndDeclareTestQueue(_connection);
+        Connection = messageBrokerHelper1.CreateConnection();
+        Channel = messageBrokerHelper1.CreateModelAndDeclareTestQueue(Connection);
     }
+
+    private IModel? Channel { get; }
+    private IConnection? Connection { get; }
 
     public void Dispose()
     {
@@ -47,7 +49,7 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
             var activityName = $"{MessageBrokerHelper.QueueName} send";
 
             using var activity = _instrumentation.ActivitySource.StartActivity(activityName, ActivityKind.Producer);
-            var props = _channel.CreateBasicProperties();
+            var props = Channel.CreateBasicProperties();
 
             // Inject the ActivityContext into the message headers to propagate trace context to the receiving service.
             Propagator.Inject(new PropagationContext(Activity.Current!.Context, Baggage.Current), props,
@@ -59,7 +61,7 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
             activity?.SetTag("messaging.destination", MessageBrokerHelper.DefaultExchangeName);
             activity?.SetTag("messaging.rabbitmq.routing_key", MessageBrokerHelper.QueueName);
 
-            _channel.BasicPublish(
+            Channel.BasicPublish(
                 MessageBrokerHelper.DefaultExchangeName,
                 MessageBrokerHelper.QueueName,
                 props,
@@ -73,8 +75,8 @@ public sealed class MessageSenderHandler : IMessageSenderHandler
 
         if (disposing)
         {
-            _channel.Dispose();
-            _connection.Dispose();
+            Channel?.Dispose();
+            Connection?.Dispose();
             _instrumentation.Dispose();
         }
 

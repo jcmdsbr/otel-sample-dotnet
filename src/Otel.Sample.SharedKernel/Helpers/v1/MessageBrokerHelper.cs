@@ -1,23 +1,49 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Otel.Sample.SharedKernel.Helpers.v1;
 
 public class MessageBrokerHelper
 {
-    private readonly ConnectionFactory _connectionFactory;
+    private readonly IConfiguration _configuration;
 
-    public MessageBrokerHelper(ConnectionFactory connectionFactory)
+    public MessageBrokerHelper(IConfiguration configuration)
     {
-        _connectionFactory = connectionFactory;
+        _configuration = configuration;
     }
+
+    private ConnectionFactory? ConnectionFactory { get; set; }
+
 
     public static string DefaultExchangeName => "";
     public static string QueueName => "customer-created-queue";
 
     public IConnection CreateConnection()
     {
-        return _connectionFactory.CreateConnection();
+        try
+        {
+            if (ConnectionFactory != null) return ConnectionFactory.CreateConnection();
+
+            ConnectionFactory = new ConnectionFactory
+            {
+                HostName = _configuration.GetValue<string>("Rabbit:HostName"),
+                UserName = _configuration.GetValue<string>("Rabbit:UserName"),
+                Password = _configuration.GetValue<string>("Rabbit:Password"),
+                Port = 5672,
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(3000)
+            };
+
+            // TODO added to prevent the application from going up without rabbitmq being ready. Need to add healthcheck policies!!
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+
+            return ConnectionFactory.CreateConnection();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public IModel CreateModelAndDeclareTestQueue(IConnection connection)
@@ -29,7 +55,7 @@ public class MessageBrokerHelper
         return channel;
     }
 
-    public void StartConsumer(IModel channel, Action<BasicDeliverEventArgs> processMessage)
+    public void StartConsumer(IModel? channel, Action<BasicDeliverEventArgs> processMessage)
     {
         var consumer = new EventingBasicConsumer(channel);
 

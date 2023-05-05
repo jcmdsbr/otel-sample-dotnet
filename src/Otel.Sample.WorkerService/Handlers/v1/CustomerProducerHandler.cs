@@ -25,10 +25,10 @@ public class CustomerProducerHandler : ICustomerProducerHandler
     {
         using var activityMain =
             _instrumentation.ActivitySource.StartActivity("Call customer service", ActivityKind.Client);
-        
+
         var testCustomer = new Faker<CustomerRequest>()
-            .RuleFor(x=>x.Name, x=> x.Name.FirstName())
-            .RuleFor(x=>x.LastName, x=>x.Name.LastName());
+            .RuleFor(x => x.Name, x => x.Name.FirstName())
+            .RuleFor(x => x.LastName, x => x.Name.LastName());
 
         await _customerClientHandler.CreateAsync(testCustomer.Generate(), cancellationToken);
     }

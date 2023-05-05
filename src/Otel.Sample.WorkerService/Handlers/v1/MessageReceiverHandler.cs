@@ -11,15 +11,14 @@ namespace Otel.Sample.WorkerService.Handlers.v1;
 
 public interface IMessageReceiverHandler : IDisposable
 {
-    void StartConsumer();
+    Task StartAsync(CancellationToken cancellationToken);
 }
 
 public sealed class MessageReceiverHandler : IMessageReceiverHandler
 {
     private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
-    private readonly IModel _channel;
-    private readonly IConnection _connection;
+
     private readonly IInstrumentation _instrumentation;
     private readonly ILogger<MessageReceiverHandler> _logger;
     private readonly MessageBrokerHelper _messageBrokerHelper;
@@ -35,9 +34,12 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
         _messageBrokerHelper = messageBrokerHelper;
         _instrumentation = instrumentation;
 
-        _connection = messageBrokerHelper.CreateConnection();
-        _channel = messageBrokerHelper.CreateModelAndDeclareTestQueue(_connection);
+        Connection = _messageBrokerHelper.CreateConnection();
+        Channel = _messageBrokerHelper.CreateModelAndDeclareTestQueue(Connection);
     }
+
+    private IModel? Channel { get; }
+    private IConnection? Connection { get; }
 
     public void Dispose()
     {
@@ -45,9 +47,9 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
         GC.SuppressFinalize(this);
     }
 
-    public void StartConsumer()
+    public Task StartAsync(CancellationToken cancellationToken)
     {
-        _messageBrokerHelper.StartConsumer(_channel, ReceiveMessage);
+        return Task.Run(() => _messageBrokerHelper.StartConsumer(Channel, ReceiveMessage), cancellationToken);
     }
 
     private void Dispose(bool disposing)
@@ -56,8 +58,8 @@ public sealed class MessageReceiverHandler : IMessageReceiverHandler
 
         if (disposing)
         {
-            _channel.Dispose();
-            _connection.Dispose();
+            Channel?.Dispose();
+            Connection?.Dispose();
         }
 
         _disposedValue = true;

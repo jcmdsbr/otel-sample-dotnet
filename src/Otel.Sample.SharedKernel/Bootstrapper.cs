@@ -67,7 +67,7 @@ public static class Bootstrapper
                 .AddRuntimeInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddAspNetCoreInstrumentation();
-
+            options.AddConsoleExporter();
             options.AddOtlpExporter(exporterOptions => { exporterOptions.Endpoint = new Uri(endpoint); });
         });
 

@@ -16,12 +16,12 @@ public class NotificationWorker : BackgroundService
         await base.StopAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        stoppingToken.ThrowIfCancellationRequested();
-
-        _messageReceiverHandler.StartConsumer();
-
-        return Task.CompletedTask;
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            await _messageReceiverHandler.StartAsync(stoppingToken);
+        }
     }
 }

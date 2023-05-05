@@ -1,19 +1,19 @@
 ﻿using System.Diagnostics;
 using MongoDB.Driver;
+using Otel.Sample.gRPC.Models.v1;
 using Otel.Sample.SharedKernel.Diagnostics.v1;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Otel.Sample.gRPC.Repositories.v1;
 
 public interface IProductRepository
 {
-    Task AddAsync(Models.v1.Product product, CancellationToken cancellationToken);
-    Task<IEnumerable<Models.v1.Product>> FindAsync(CancellationToken cancellationToken);
+    Task AddAsync(ProductEntity productEntity, CancellationToken cancellationToken);
+    Task<IEnumerable<ProductEntity>> FindAsync(CancellationToken cancellationToken);
 }
 
 public class ProductRepository : IProductRepository
 {
-    private readonly IMongoCollection<Models.v1.Product> _collection;
+    private readonly IMongoCollection<ProductEntity> _collection;
     private readonly IInstrumentation _instrumentation;
     private readonly ILogger<ProductRepository> _logger;
 
@@ -26,16 +26,17 @@ public class ProductRepository : IProductRepository
         _instrumentation = instrumentation;
         _collection = client
             .GetDatabase("OTelSampleDb")
-            .GetCollection<Models.v1.Product>(nameof(Models.v1.Product));
+            .GetCollection<ProductEntity>("ProductEntity");
     }
 
-    public async Task AddAsync(Models.v1.Product product, CancellationToken cancellationToken)
+    public async Task AddAsync(ProductEntity productEntity, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Product to save: {productId}, {productName}", product.Id, product.Name);
+        _logger.LogInformation("ProductEntity to save: {productId}, {productName}", productEntity.Id,
+            productEntity.Name);
 
-        const string activityName = "Product.insert";
+        const string activityName = "ProductEntity.insert";
         using var activityCache = _instrumentation.ActivitySource.StartActivity(activityName, ActivityKind.Client);
-        await _collection.InsertOneAsync(product, new InsertOneOptions(), cancellationToken);
+        await _collection.InsertOneAsync(productEntity, new InsertOneOptions(), cancellationToken);
 
         // The semantic conventions of the OpenTelemetry Mongodb specification
         activityCache?.SetTag("db.system", "mongodb");
@@ -45,13 +46,12 @@ public class ProductRepository : IProductRepository
         activityCache?.SetTag("net.transport", "IP.TCP");
         activityCache?.SetTag("db.name", "OTelSampleDb");
         activityCache?.SetTag("db.operation", "insert");
-        activityCache?.SetTag("db.mongodb.collection", "Product");
-        activityCache?.SetTag("db.redis.database_index", "0");
+        activityCache?.SetTag("db.mongodb.collection", "ProductEntity");
     }
 
-    public async Task<IEnumerable<Models.v1.Product>> FindAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<ProductEntity>> FindAsync(CancellationToken cancellationToken)
     {
-        const string activityName = "Product.find";
+        const string activityName = "ProductEntity.find";
         using var activityCache = _instrumentation.ActivitySource.StartActivity(activityName, ActivityKind.Client);
 
         var result = await _collection.Find(_ => true).ToListAsync(cancellationToken);
@@ -64,7 +64,7 @@ public class ProductRepository : IProductRepository
         activityCache?.SetTag("net.transport", "IP.TCP");
         activityCache?.SetTag("db.name", "OTelSampleDb");
         activityCache?.SetTag("db.operation", "insert");
-        activityCache?.SetTag("db.mongodb.collection", "Product");
+        activityCache?.SetTag("db.mongodb.collection", "ProductEntity");
         activityCache?.SetTag("db.redis.database_index", "0");
 
         return result;

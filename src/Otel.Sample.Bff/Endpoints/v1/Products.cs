@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 using Otel.Sample.Bff.Models.v1;
 using Otel.Sample.gRPC;
@@ -20,9 +21,17 @@ public static class Products
                 using var activityMain =
                     instrumentation.ActivitySource.StartActivity("Starting find products flow", ActivityKind.Server);
 
-                var response = await client.FindAsync(new GetProductRequest(), cancellationToken: cancellationToken);
+                try
+                {
+                    var response =
+                        await client.FindAsync(new GetProductRequest(), cancellationToken: cancellationToken);
 
-                return Results.Ok(new { TraceId = activityMain?.TraceId.ToString(), Content = response });
+                    return Results.Ok(new { TraceId = activityMain?.TraceId.ToString(), Content = response });
+                }
+                catch (RpcException ex)
+                {
+                    return Results.Problem(ex.Message);
+                }
             })
             .WithName("Get Products")
             .WithOpenApi();
@@ -34,15 +43,24 @@ public static class Products
                 CancellationToken cancellationToken) =>
             {
                 using var activityMain =
-                    instrumentation.ActivitySource.StartActivity("Starting create product flow", ActivityKind.Server);
+                    instrumentation.ActivitySource.StartActivity("Starting create productEntity flow",
+                        ActivityKind.Server);
 
-                var response = await client.CreateAsync(new CreateProductRequest { Name = request.Name },
-                    cancellationToken: cancellationToken);
+                try
+                {
+                    var response = await client.CreateAsync(new CreateProductRequest { Name = request.Name },
+                        cancellationToken: cancellationToken);
 
-                return Results.Created($"/v1/products/{response.Id}",
-                    new { TraceId = activityMain?.TraceId.ToString(), Content = response });
+                    return Results.Created($"/v1/products/{response.Id}",
+                        new { TraceId = activityMain?.TraceId.ToString(), Content = response });
+                }
+
+                catch (RpcException ex)
+                {
+                    return Results.Problem(ex.Message);
+                }
             })
-            .WithName("Create Product")
+            .WithName("Create Products")
             .WithOpenApi();
 
 

@@ -18,12 +18,10 @@ public class ProducerWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        stoppingToken.ThrowIfCancellationRequested();
-
         while (!stoppingToken.IsCancellationRequested)
         {
-            await _producer.StartAsync(stoppingToken);
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            await _producer.StartAsync(stoppingToken);
         }
     }
 }
